@@ -121,5 +121,14 @@ class AmqpTransportFactoryTest extends \PHPUnit_Framework_TestCase
 
         $driver = $container->getDefinition($serviceId);
         $this->assertSame(AmqpDriver::class, $driver->getClass());
+
+        $this->assertInstanceOf(Reference::class, $driver->getArgument(0));
+        $this->assertEquals('enqueue.transport.amqp.context', (string) $driver->getArgument(0));
+
+        $this->assertInstanceOf(Reference::class, $driver->getArgument(1));
+        $this->assertEquals('enqueue.client.config', (string) $driver->getArgument(1));
+
+        $this->assertInstanceOf(Reference::class, $driver->getArgument(2));
+        $this->assertEquals('enqueue.client.meta.queue_meta_registry', (string) $driver->getArgument(2));
     }
 }
