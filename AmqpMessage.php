@@ -258,7 +258,7 @@ class AmqpMessage implements PsrMessage
      */
     public function addFlag($flag)
     {
-        $this->flags |= $flag;
+        $this->flags = $this->flags | $flag;
     }
 
     /**
