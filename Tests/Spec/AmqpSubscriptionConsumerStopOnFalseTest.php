@@ -3,35 +3,40 @@
 namespace Enqueue\AmqpExt\Tests\Spec;
 
 use Enqueue\AmqpExt\AmqpConnectionFactory;
-use Enqueue\AmqpExt\AmqpContext;
+use Interop\Amqp\AmqpContext;
+use Interop\Amqp\AmqpQueue;
 use Interop\Queue\Context;
-use Interop\Queue\Spec\SendAndReceivePriorityMessagesFromQueueSpec;
+use Interop\Queue\Spec\SubscriptionConsumerStopOnFalseSpec;
 
 /**
  * @group functional
  */
-class AmqpSendAndReceivePriorityMessagesFromQueueTest extends SendAndReceivePriorityMessagesFromQueueSpec
+class AmqpSubscriptionConsumerStopOnFalseTest extends SubscriptionConsumerStopOnFalseSpec
 {
     /**
+     * @return AmqpContext
+     *
      * {@inheritdoc}
      */
     protected function createContext()
     {
         $factory = new AmqpConnectionFactory(getenv('AMQP_DSN'));
 
-        return $factory->createContext();
+        $context = $factory->createContext();
+        $context->setQos(0, 5, false);
+
+        return $context;
     }
 
     /**
-     * {@inheritdoc}
-     *
      * @param AmqpContext $context
+     *
+     * {@inheritdoc}
      */
     protected function createQueue(Context $context, $queueName)
     {
-        $queue = $context->createQueue($queueName);
-        $queue->setArguments(['x-max-priority' => 10]);
-
+        /** @var AmqpQueue $queue */
+        $queue = parent::createQueue($context, $queueName);
         $context->declareQueue($queue);
         $context->purgeQueue($queue);
 

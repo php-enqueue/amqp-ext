@@ -3,25 +3,38 @@
 namespace Enqueue\AmqpExt\Tests\Spec;
 
 use Enqueue\AmqpExt\AmqpConnectionFactory;
-use Enqueue\AmqpExt\AmqpContext;
-use Enqueue\AmqpTools\RabbitMqDlxDelayStrategy;
+use Interop\Amqp\AmqpContext;
+use Interop\Amqp\AmqpQueue;
 use Interop\Queue\Context;
-use Interop\Queue\Spec\SendAndReceiveDelayedMessageFromQueueSpec;
+use Interop\Queue\Spec\SubscriptionConsumerConsumeUntilUnsubscribedSpec;
 
 /**
  * @group functional
  */
-class AmqpSendAndReceiveDelayedMessageWithDlxStrategyTest extends SendAndReceiveDelayedMessageFromQueueSpec
+class AmqpSubscriptionConsumerConsumeUntilUnsubscribedTest extends SubscriptionConsumerConsumeUntilUnsubscribedSpec
 {
+    protected function tearDown()
+    {
+        if ($this->subscriptionConsumer) {
+            $this->subscriptionConsumer->unsubscribeAll();
+        }
+
+        parent::tearDown();
+    }
+
     /**
+     * @return AmqpContext
+     *
      * {@inheritdoc}
      */
     protected function createContext()
     {
         $factory = new AmqpConnectionFactory(getenv('AMQP_DSN'));
-        $factory->setDelayStrategy(new RabbitMqDlxDelayStrategy());
 
-        return $factory->createContext();
+        $context = $factory->createContext();
+        $context->setQos(0, 1, false);
+
+        return $context;
     }
 
     /**
@@ -31,8 +44,8 @@ class AmqpSendAndReceiveDelayedMessageWithDlxStrategyTest extends SendAndReceive
      */
     protected function createQueue(Context $context, $queueName)
     {
+        /** @var AmqpQueue $queue */
         $queue = parent::createQueue($context, $queueName);
-
         $context->declareQueue($queue);
         $context->purgeQueue($queue);
 
