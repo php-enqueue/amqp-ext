@@ -1,5 +1,5 @@
 {
-    "name": "enqueue/amqp-ext",
+    "name": "dimanzver/amqp-ext",
     "type": "library",
     "description": "Message Queue Amqp Transport",
     "keywords": ["messaging", "queue", "amqp"],
